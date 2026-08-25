@@ -95,6 +95,15 @@ function fmtDateFull(iso) {
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+// Computed from the conference's own event date, not typed into the sheet
+// by hand, so it can't drift out of sync if a date moves.
+function quarterBadge(eventStartIso) {
+  if (!eventStartIso) return '';
+  const month = parseInt(eventStartIso.slice(5, 7), 10);
+  if (!month) return '';
+  const q = Math.ceil(month / 3);
+  return `<span class="quarter-badge">Q${q}</span>`;
+}
 function fmtBudget(n, currencyLabel) {
   if (n === null || n === undefined) return '<span class="muted">\u2014</span>';
   const formatted = n.toLocaleString('en-US');
@@ -403,12 +412,12 @@ function renderConfList() {
         <div class="conf-title-row">
           <span class="conf-title">${highlight(confName, activeFields.has("conference") ? term : "")}</span>
           ${confCode ? `<span class="conf-code">${confCode}</span>` : ''}
+          ${quarterBadge(c.eventStart)}
           ${isPast ? '<span class="past-badge">Completed</span>' : ''}
           ${daysUntilBadge}
         </div>
         ${c.venue ? `<div class="conf-venue">${highlight(c.venue, activeFields.has("venue") ? term : "")}</div>` : ''}
         ${regLead ? `<div class="conf-reglead"><b>Reg Lead</b> ${regLead}</div>` : ''}
-        ${c.note ? `<div class="conf-note">${c.note}</div>` : ''}
       </div>
       <div class="conf-meta"><b>${c.people.length}</b> on team<br>${budgetDisplay(budgetTotal, c.region)} total</div>
       <div class="conf-dates"><span class="label">Event</span>${fmtDate(c.eventStart)}<span class="dash">\u2013</span>${fmtDateFull(c.eventEnd)}</div>
