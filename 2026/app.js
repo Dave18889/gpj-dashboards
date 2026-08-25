@@ -63,6 +63,15 @@ function fmtDateFull(iso) {
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+// Computed from the conference's own event date, not typed into the sheet
+// by hand, so it can't drift out of sync if a date moves.
+function quarterBadge(eventStartIso) {
+  if (!eventStartIso) return '';
+  const month = parseInt(eventStartIso.slice(5, 7), 10);
+  if (!month) return '';
+  const q = Math.ceil(month / 3);
+  return `<span class="quarter-badge">Q${q}</span>`;
+}
 function fmtBudget(n, currencyLabel) {
   if (n === null || n === undefined) return '<span class="muted">—</span>';
   const formatted = n.toLocaleString('en-US');
@@ -469,6 +478,7 @@ function renderConfList() {
         <div class="conf-title-row">
           <span class="conf-title">${highlight(confName, activeFields.has("conference") ? term : "")}</span>
           ${confCode ? `<span class="conf-code">${confCode}</span>` : ''}
+          ${quarterBadge(c.eventStart)}
           ${isPast ? '<span class="past-badge">Completed</span>' : ''}
           ${daysUntilBadge}
         </div>
