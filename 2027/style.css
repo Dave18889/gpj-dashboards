@@ -142,6 +142,10 @@ h1 {
   font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; color: var(--navy);
   border: 1px solid var(--line); background: var(--bg-soft); border-radius: 3px; padding: 1px 6px; letter-spacing: 0.4px;
 }
+.quarter-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; color: var(--gold);
+  border: 1px solid var(--gold-soft); background: var(--gold-soft); border-radius: 3px; padding: 1px 6px; letter-spacing: 0.4px;
+}
 .conf-venue { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-soft); margin-top: 4px; }
 .conf-reglead { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-soft); margin-top: 4px; }
 .conf-reglead b { color: var(--navy); font-weight: 600; }
