@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPJ 2026 Stock Forecast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>GPJ 2026 Stock Forecast</h1>
+      <div class="subtitle" id="subtitle"><span class="live-dot" id="liveDot"></span><span id="subtitleText">Loading&hellip;</span></div>
+    </div>
+    <div class="header-controls">
+      <a class="header-btn" href="/index.html">&larr; All Years</a>
+      <button class="header-btn" id="refreshBtn">Refresh now</button>
+    </div>
+  </header>
+
+  <div class="summary-row" id="summaryRow"></div>
+
+  <div class="region-list" id="regionList"></div>
+
+  <footer>
+    Parsed live from the 2026 Stock Tracker Google Sheet &mdash; the "All Regions" tab for totals, and each
+    regional tab for the per-conference breakdown. <b>Delta</b> is the sheet's own shortfall/surplus figure
+    (in store now minus what's needed) &mdash; shown in red when negative (a shortage) and green when zero or
+    positive. Figures refresh automatically every 30 seconds.
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPJ Gartner Dashboards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>GPJ Gartner Dashboards</h1>
+      <div class="subtitle">Choose a dashboard to open</div>
+    </div>
+  </header>
+
+  <h2 class="section-heading">T&amp;E Forecast</h2>
+  <div class="year-grid">
+    <a class="year-card" href="/2026/index.html">
+      <div class="year-card-label">Current</div>
+      <div class="year-card-title">2026</div>
+      <div class="year-card-desc">Browse by region, person / clash check, and cost summary — sourced live from the 2026 Gartner T&amp;E Forecast sheet.</div>
+      <div class="year-card-cta">Open 2026 dashboard &rarr;</div>
+    </a>
+
+    <a class="year-card" href="/2027/index.html">
+      <div class="year-card-title">2027</div>
+      <div class="year-card-desc">Browse by region, person / clash check, and cost summary — sourced live from the 2027 Gartner T&amp;E Forecast sheet.</div>
+      <div class="year-card-cta">Open 2027 dashboard &rarr;</div>
+    </a>
+  </div>
+
+  <h2 class="section-heading">Stock Forecast</h2>
+  <div class="year-grid">
+    <a class="year-card" href="/stock2026/index.html">
+      <div class="year-card-label">Current</div>
+      <div class="year-card-title">2026</div>
+      <div class="year-card-desc">Browse by region and conference, with per-item stock levels and shortfall/surplus deltas — sourced live from the 2026 Stock Tracker sheet.</div>
+      <div class="year-card-cta">Open 2026 dashboard &rarr;</div>
+    </a>
+
+    <div class="year-card year-card-disabled">
+      <div class="year-card-title">2027</div>
+      <div class="year-card-desc">Not set up yet — once the 2027 Stock Tracker sheet exists, this dashboard can be added the same way.</div>
+      <div class="year-card-cta">Coming soon</div>
+    </div>
+  </div>
+
+  <footer>
+    All dashboards pull live from their respective Google Sheets and refresh automatically. Bookmark this page,
+    or bookmark any dashboard directly at <code>/2026</code>, <code>/2027</code>, or <code>/stock2026</code>.
+  </footer>
+</div>
+</body>
+</html>
