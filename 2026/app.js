@@ -21,6 +21,9 @@ async function loadLiveData() {
     if (!currentRegion) currentRegion = REGIONS[0];
     renderAll();
     if (COST_SUMMARY) renderCostView();
+    const confCount = new Set(RECORDS.filter(r => !isAirport(r.conference)).map(r => r.conference)).size;
+    const time = new Date().toLocaleTimeString();
+    subtitleEl.innerHTML = `<span class="live-dot"></span>${REGIONS.length} region sheets \u00b7 ${RECORDS.length} assignments \u00b7 ${confCount} conferences \u00b7 updated ${time}`;
   } catch (err) {
     subtitleEl.textContent = `Could not load live data \u2014 ${err.message}`;
     console.error(err);
@@ -524,8 +527,9 @@ function renderConfList() {
     confListEl.appendChild(item);
   });
 
+  const nonAirportCount = confs.filter(c => !isAirport(c.conference)).length;
   emptyState.style.display = confs.length === 0 ? 'block' : 'none';
-  resultCount.textContent = `${confs.length} of ${groupConferences(currentRegion).filter(c => !isAirport(c.conference)).length} conferences`;
+  resultCount.textContent = `${nonAirportCount} of ${groupConferences(currentRegion).filter(c => !isAirport(c.conference)).length} conferences`;
 }
 
 function renderAll() { renderTabs(); renderRegionSummary(); renderChips(); renderSortRow(); renderConfList(); renderGlobalClashBadge(); }
