@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPJ North America Shipping</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>GPJ North America Shipping</h1>
+      <div class="subtitle" id="subtitle"><span class="live-dot" id="liveDot"></span><span id="subtitleText">Loading&hellip;</span></div>
+    </div>
+    <div class="header-controls">
+      <a class="header-btn" href="/index.html">&larr; All Years</a>
+      <button class="header-btn" id="refreshBtn">Refresh now</button>
+    </div>
+  </header>
+
+  <div class="summary-row" id="summaryRow"></div>
+
+  <div class="table-scroll">
+    <table id="shippingTable">
+      <thead>
+        <tr>
+          <th class="item-col">Conference</th>
+          <th>2025 Actuals</th>
+          <th>Original Estimate</th>
+          <th>Updated Estimate / Actual</th>
+          <th>Delta</th>
+        </tr>
+      </thead>
+      <tbody id="shippingBody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    Parsed live from the "Gartner NA Shipping Estimates" Google Sheet. Conference names are cross-referenced from
+    the 2026 NA T&amp;E tab where the codes match. <b>Delta</b> is Updated minus Original — shown in red when
+    shipping came in over the original estimate, and green when it came in under. A blank 2025 Actuals figure
+    means that conference is new this year, with nothing to compare against. Figures refresh automatically every
+    30 seconds.
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

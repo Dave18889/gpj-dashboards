@@ -43,6 +43,7 @@ h1 {
 }
 .section-icon-navy { background: linear-gradient(135deg, var(--navy), var(--navy-deep)); }
 .section-icon-gold { background: linear-gradient(135deg, var(--gold), var(--gold-deep)); }
+.section-icon-teal { background: linear-gradient(135deg, #0F6E64, #0A4E47); }
 .section-heading {
   font-family: 'Libre Franklin', sans-serif; font-weight: 800; font-size: 28px; color: var(--navy);
   margin: 2px 0 4px; letter-spacing: -0.4px;
@@ -67,6 +68,10 @@ h1 {
 .year-card-navy:hover { border-top-color: var(--accent); }
 .year-card-gold { border-top-color: var(--gold); }
 .year-card-gold:hover { border-top-color: var(--gold-deep); }
+.year-card-teal { border-top-color: #0F6E64; }
+.year-card-teal:hover { border-top-color: #0A4E47; }
+
+.year-grid-single { grid-template-columns: minmax(0, 460px); }
 
 .year-card-label {
   display: inline-block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10.5px;
@@ -79,6 +84,7 @@ h1 {
   border-bottom: 3px solid var(--accent); letter-spacing: 0.5px;
 }
 .year-card-gold .year-card-title { border-bottom-color: var(--gold); }
+.year-card-teal .year-card-title { border-bottom-color: #0F6E64; }
 .year-card-desc {
   font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--text-soft); line-height: 1.6;
   margin-bottom: 18px;
@@ -88,6 +94,7 @@ h1 {
 }
 .year-card-navy:hover .year-card-cta { color: var(--accent); }
 .year-card-gold:hover .year-card-cta { color: var(--gold-deep); }
+.year-card-teal:hover .year-card-cta { color: #0A4E47; }
 
 .year-card-disabled {
   cursor: default; opacity: 0.5;

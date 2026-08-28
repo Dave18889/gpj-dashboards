@@ -20,13 +20,13 @@ old separate ones.
 1. Unzip the file I've provided
 2. On the new repo's page, click **uploading an existing file**
 3. Open the unzipped folder, select **everything inside it** — including
-   the `2026`, `2027`, `stock2026`, `api`, and `lib` folders — and drag it
+   the `2026`, `2027`, `stock2026`, `shippingNA`, `api`, and `lib` folders — and drag it
    all into the upload box
 4. Commit
 
-Your repo's top level should show: `2026`, `2027`, `stock2026`, `api`,
-`lib`, `index.html`, `style.css`, `server.js`, `middleware.js`,
-`package.json`, `.env.example`, `.gitignore`.
+Your repo's top level should show: `2026`, `2027`, `stock2026`,
+`shippingNA`, `api`, `lib`, `index.html`, `style.css`, `server.js`,
+`middleware.js`, `package.json`, `.env.example`, `.gitignore`.
 
 ## Step 3: Import into Vercel
 
@@ -45,6 +45,7 @@ Before deploying, add these in the project settings (or after, under
 | `SPREADSHEET_ID_2026` | `1lMx9A-CVvae7iIinprtdVoE47N6FBf2ibDGuCUuevmc` |
 | `SPREADSHEET_ID_2027` | `1_9iyAS18fYZTlY45AcSU2AdxtkKt_axpw5DnqKg0zHM` |
 | `SPREADSHEET_ID_STOCK_2026` | `1R8Imdku0rMvWfd66ZKBafRZmnL1x0S-FAWstRLBK-QE` |
+| `SPREADSHEET_ID_SHIPPING_NA` | `1hpTWfxspIxUEP2fVjBOAZHgElKL8zINtFSHHb8OA1OY` |
 
 Note the names — each sheet gets its own `SPREADSHEET_ID_...` variable, since one
 project now serves three sheets and they can't share a name.
@@ -94,15 +95,19 @@ repos — everything they did now lives here.
 │   ├── index.html / style.css / app.js
 ├── stock2026/
 │   ├── index.html / style.css / app.js
+├── shippingNA/
+│   ├── index.html / style.css / app.js
 ├── api/
 │   ├── 2026/te-forecast.js         # Reads the 2026 T&E sheet
 │   ├── 2027/te-forecast.js         # Reads the 2027 T&E sheet
-│   └── stock2026/data.js           # Reads the 2026 Stock Tracker sheet
+│   ├── stock2026/data.js           # Reads the 2026 Stock Tracker sheet
+│   └── shippingNA/data.js          # Reads the NA Shipping sheet (+ 2026 T&E for names)
 ├── lib/
 │   ├── 2026/sheets.js, parse.js      # 2026 T&E parsing logic
 │   ├── 2027/sheets.js, parse.js      # 2027 T&E parsing logic
-│   └── stock2026/sheets.js, parse.js # 2026 Stock Tracker parsing logic
-├── server.js                           # Optional local dev (all three)
+│   ├── stock2026/sheets.js, parse.js # 2026 Stock Tracker parsing logic
+│   └── shippingNA/sheets.js, parse.js # NA Shipping parsing logic
+├── server.js                           # Optional local dev (all four)
 ├── middleware.js                         # Optional shared password
 └── package.json
 ```
