@@ -1,5 +1,6 @@
 const { fetchAll, REGION_TABS } = require('../../lib/2026/sheets');
 const { parseRegionTab, parseCostSummary, parseTeamView } = require('../../lib/2026/parse');
+const { fetchGbpToEurRate } = require('../../lib/fx');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,7 +10,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const data = await fetchAll();
+    const [data, fx] = await Promise.all([fetchAll(), fetchGbpToEurRate()]);
 
     const records = REGION_TABS.flatMap((tab) => parseRegionTab(tab, data.regions[tab]));
     const costSummary = parseCostSummary(data.costSummary);
@@ -19,6 +20,7 @@ module.exports = async function handler(req, res) {
       records,
       homeRegion,
       costSummary,
+      fx,
       updatedAt: new Date().toISOString(),
     });
   } catch (err) {

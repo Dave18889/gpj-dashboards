@@ -1,9 +1,10 @@
 const { fetchAll, REGION_TABS } = require('../../lib/2027/sheets');
 const { parseRegionTab, buildRecords, parseCostSummary, parseClashes, parsePegRates } = require('../../lib/2027/parse');
+const { fetchGbpToEurRate } = require('../../lib/fx');
 
 module.exports = async (req, res) => {
   try {
-    const data = await fetchAll();
+    const [data, fx] = await Promise.all([fetchAll(), fetchGbpToEurRate()]);
 
     const parsedRegions = REGION_TABS.map((tab) => parseRegionTab(tab, data.regions[tab]));
     const records = buildRecords(parsedRegions);
@@ -16,6 +17,7 @@ module.exports = async (req, res) => {
       costSummary,
       clashes,
       pegRates,
+      fx,
       updatedAt: new Date().toISOString(),
     });
   } catch (err) {

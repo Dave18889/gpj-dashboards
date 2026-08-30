@@ -28,6 +28,85 @@ function currencySymbol(code) { return CURRENCY_SYMBOL[code] || (code || ''); }
 
 const LIVE_DATA_URL = '/api/2027/te-forecast';
 
+// ---- Change tracking: highlight what's new/changed since the visitor's
+// last visit, using a snapshot saved in their browser's local storage.
+// This is per-browser, not shared across a team — each person sees what's
+// changed since THEY last opened the page.
+const CHANGE_STORAGE_KEY = 'gpj_te_snapshot_2027_v1';
+let PREV_SNAPSHOT = loadSnapshot(CHANGE_STORAGE_KEY);
+let snapshotSavedThisSession = false;
+let CHANGES = { newConfs: new Set(), changedConfs: new Set(), changedRoles: new Set(), hasBaseline: false };
+
+function loadSnapshot(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+function saveSnapshot(key, map) {
+  try {
+    localStorage.setItem(key, JSON.stringify(map));
+  } catch (e) {
+    // localStorage unavailable (private browsing, etc.) — highlighting just won't persist across visits.
+  }
+}
+function confKeyFor(region, code, conference) {
+  return `${region}::${code || conference}`;
+}
+function buildSnapshotMap(records) {
+  const map = {};
+  records.forEach((r) => {
+    const roleKey = `${confKeyFor(r.region, r.code, r.conference)}::${r.role}`;
+    map[roleKey] = {
+      person: r.person || null,
+      totalBudget: r.totalBudget ?? null,
+      eventStart: r.eventStart || null,
+      eventEnd: r.eventEnd || null,
+      venue: r.venue || null,
+    };
+  });
+  return map;
+}
+function computeChanges(prevMap, records) {
+  const changedRoles = new Set();
+  const changedConfs = new Set();
+  const newConfs = new Set();
+  const confHasPriorRole = {};
+
+  if (!prevMap) return { newConfs, changedConfs, changedRoles, hasBaseline: false };
+
+  records.forEach((r) => {
+    const confKey = confKeyFor(r.region, r.code, r.conference);
+    const roleKey = `${confKey}::${r.role}`;
+    const prev = prevMap[roleKey];
+    confHasPriorRole[confKey] = confHasPriorRole[confKey] || !!prev;
+
+    if (!prev) {
+      changedRoles.add(roleKey);
+      changedConfs.add(confKey);
+    } else {
+      const changed =
+        prev.person !== (r.person || null) ||
+        prev.totalBudget !== (r.totalBudget ?? null) ||
+        prev.eventStart !== (r.eventStart || null) ||
+        prev.eventEnd !== (r.eventEnd || null) ||
+        prev.venue !== (r.venue || null);
+      if (changed) {
+        changedRoles.add(roleKey);
+        changedConfs.add(confKey);
+      }
+    }
+  });
+
+  changedConfs.forEach((confKey) => {
+    if (!confHasPriorRole[confKey]) newConfs.add(confKey);
+  });
+
+  return { newConfs, changedConfs, changedRoles, hasBaseline: true };
+}
+
 async function loadLiveData() {
   const subtitleEl = document.getElementById('subtitleText');
   const dot = document.getElementById('liveDot');
@@ -43,11 +122,24 @@ async function loadLiveData() {
     COST_SUMMARY = json.costSummary || null;
     CLASHES = json.clashes || [];
     PEG_RATES = json.pegRates || {};
+    FX = json.fx || { gbpToEur: null, asOf: null, isLive: false };
+    if (FX.gbpToEur) {
+      const rateNote = FX.isLive
+        ? `Live rate as of ${FX.asOf}: 1 GBP = ${FX.gbpToEur.toFixed(4)} EUR (source: European Central Bank via Frankfurter.app)`
+        : `Using an approximate rate (1 GBP = ${FX.gbpToEur.toFixed(4)} EUR) — the live rate couldn't be fetched just now`;
+      document.getElementById('emeaEuroToggle').title = rateNote;
+    }
 
     REGIONS = ["NA","LATAM","EMEA","INDIA","APAC","JAPAN"].filter(r => RECORDS.some(rec => rec.region === r));
     RECORDS.forEach(r => { if (r.currency && !REGION_CURRENCY[r.region]) REGION_CURRENCY[r.region] = r.currency; });
     RECORDS.forEach(r => { if (r.code && r.venue && !CODE_VENUE[r.code]) CODE_VENUE[r.code] = r.venue; });
     if (!currentRegion) currentRegion = REGIONS[0];
+
+    CHANGES = computeChanges(PREV_SNAPSHOT, RECORDS);
+    if (!snapshotSavedThisSession) {
+      saveSnapshot(CHANGE_STORAGE_KEY, buildSnapshotMap(RECORDS));
+      snapshotSavedThisSession = true;
+    }
 
     dot.className = 'live-dot';
     const time = new Date(json.updatedAt || Date.now()).toLocaleTimeString();
@@ -127,12 +219,22 @@ function setMode(mode) {
 
 let showUSD = false;
 
+// ---- EMEA-specific GBP → EUR conversion, using a live rate fetched by the
+// backend (see lib/fx.js) — independent of the USD toggle above, which
+// takes priority if both are somehow active at once.
+let FX = { gbpToEur: null, asOf: null, isLive: false };
+let showEuroForEMEA = false;
+
 function convertIfNeeded(n, currencyCode) {
   if (n === null || n === undefined || !showUSD) return n;
   const rate = PEG_RATES[currencyCode];
   return rate ? n * rate : n;
 }
 function budgetDisplay(n, region) {
+  if (region === 'EMEA' && showEuroForEMEA && !showUSD && FX.gbpToEur && REGION_CURRENCY[region] === 'GBP') {
+    const converted = n === null || n === undefined ? null : n * FX.gbpToEur;
+    return fmtBudget(converted, '\u20ac');
+  }
   const code = REGION_CURRENCY[region];
   const val = convertIfNeeded(n, code);
   const label = showUSD ? 'US$' : currencySymbol(code);
@@ -145,6 +247,21 @@ document.getElementById('usdToggle').onclick = () => {
   document.getElementById('usdToggle').textContent = showUSD ? 'Show native currencies' : 'Show in USD';
   renderRegionSummary(); renderConfList(); renderCostView();
   if (document.getElementById('personView').style.display !== 'none') renderPersonView();
+};
+
+document.getElementById('emeaEuroToggle').onclick = () => {
+  showEuroForEMEA = !showEuroForEMEA;
+  const btn = document.getElementById('emeaEuroToggle');
+  btn.classList.toggle('active', showEuroForEMEA);
+  btn.innerHTML = showEuroForEMEA ? 'Show EMEA in &pound;' : 'Show EMEA in &euro;';
+  renderRegionSummary(); renderConfList(); renderCostView();
+  if (document.getElementById('personView').style.display !== 'none') renderPersonView();
+};
+
+document.getElementById('markReviewedBtn').onclick = () => {
+  saveSnapshot(CHANGE_STORAGE_KEY, buildSnapshotMap(RECORDS));
+  CHANGES = { newConfs: new Set(), changedConfs: new Set(), changedRoles: new Set(), hasBaseline: true };
+  renderConfList();
 };
 
 let openCostRegions = new Set();
@@ -382,6 +499,9 @@ function renderConfList() {
   confListEl.innerHTML = "";
   confs.forEach(c => {
     const key = c.region + '::' + c.conference;
+    const confKey = confKeyFor(c.region, c.code, c.conference);
+    const isNewConf = CHANGES.hasBaseline && CHANGES.newConfs.has(confKey);
+    const isUpdatedConf = CHANGES.hasBaseline && !isNewConf && CHANGES.changedConfs.has(confKey);
     const peopleMatch = term && c.people.some(p =>
       (activeFields.has("person") && p.person && p.person.toLowerCase().includes(term)) ||
       (activeFields.has("role") && p.role && p.role.toLowerCase().includes(term))
@@ -390,7 +510,7 @@ function renderConfList() {
 
     const item = document.createElement('div');
     const isPast = c.eventEnd && c.eventEnd < TODAY_ISO;
-    item.className = 'conf-item' + (isOpen ? ' open' : '') + (isPast ? ' past' : '');
+    item.className = 'conf-item' + (isOpen ? ' open' : '') + (isPast ? ' past' : '') + (isNewConf || isUpdatedConf ? ' has-changes' : '');
 
     const budgetTotal = c.people.reduce((s,p)=>s+(p.totalBudget||0),0);
     const regLead = findRegLead(c.people);
@@ -413,6 +533,7 @@ function renderConfList() {
           <span class="conf-title">${highlight(confName, activeFields.has("conference") ? term : "")}</span>
           ${confCode ? `<span class="conf-code">${confCode}</span>` : ''}
           ${quarterBadge(c.eventStart)}
+          ${isNewConf ? '<span class="new-badge">New</span>' : isUpdatedConf ? '<span class="updated-badge">Updated</span>' : ''}
           ${isPast ? '<span class="past-badge">Completed</span>' : ''}
           ${daysUntilBadge}
         </div>
@@ -440,8 +561,11 @@ function renderConfList() {
     const tbody = document.createElement('tbody');
     peopleSorted.forEach(p => {
       const tr = document.createElement('tr');
+      const roleKey = `${confKey}::${p.role}`;
+      const isChangedRole = CHANGES.hasBaseline && !isNewConf && CHANGES.changedRoles.has(roleKey);
+      if (isChangedRole) tr.className = 'changed-row';
       tr.innerHTML = `
-        <td>${p.person ? highlight(p.person, activeFields.has("person") ? term : "") : '<span class="muted">Unassigned</span>'}</td>
+        <td>${p.person ? highlight(p.person, activeFields.has("person") ? term : "") : '<span class="muted">Unassigned</span>'}${isChangedRole ? '<span class="changed-tag" title="Changed since your last visit">\u0394</span>' : ''}</td>
         <td><span class="role-pill">${highlight(p.role, activeFields.has("role") ? term : "")}</span></td>
         <td>${fmtDateFull(p.inDate)}</td>
         <td>${fmtDateFull(p.outDate)}</td>
@@ -599,6 +723,8 @@ function renderPersonView() {
     if (showUSD) {
       const usdSum = records.reduce((s,r) => s + (convertIfNeeded(r.totalBudget, REGION_CURRENCY[r.region]) || 0), 0);
       budgetTotalText = `US$ ${usdSum.toLocaleString('en-US')}`;
+    } else if (showEuroForEMEA && FX.gbpToEur && distinctRegions.size === 1 && records[0].region === 'EMEA' && REGION_CURRENCY['EMEA'] === 'GBP') {
+      budgetTotalText = `\u20ac ${(budgetTotal * FX.gbpToEur).toLocaleString('en-US')}`;
     } else {
       const aggCurrency = distinctRegions.size === 1 ? currencySymbol(REGION_CURRENCY[records[0].region]) : null;
       budgetTotalText = aggCurrency

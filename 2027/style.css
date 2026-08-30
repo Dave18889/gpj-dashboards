@@ -171,6 +171,26 @@ h1 {
 .conf-item.past .conf-title { color: var(--text-soft); }
 .conf-item.past .conf-code { color: var(--text-faint); border-color: var(--line); }
 
+.new-badge {
+  display: inline-block; margin-left: 2px; padding: 2px 8px; border-radius: 3px; font-size: 9px;
+  font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  background: var(--green-soft); color: var(--green);
+}
+.updated-badge {
+  display: inline-block; margin-left: 2px; padding: 2px 8px; border-radius: 3px; font-size: 9px;
+  font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  background: var(--gold-soft); color: var(--gold);
+}
+.conf-item.has-changes .conf-header { border-left: 3px solid var(--green); }
+.conf-item.has-changes.open .conf-header { border-left-color: var(--navy); }
+tr.changed-row { background: var(--green-soft); }
+tr.changed-row:hover { background: #D7EFE0 !important; }
+.changed-tag {
+  display: inline-flex; margin-left: 6px; font-size: 11px; font-weight: 700; color: var(--green);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+
 .conf-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--text-soft); white-space: nowrap; text-align: right; min-width: 120px; line-height: 1.5; }
 .conf-meta b { color: var(--navy); }
 
